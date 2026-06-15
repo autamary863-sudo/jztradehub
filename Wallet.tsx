@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const API_URL = "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const WalletPage = () => {
   const { user, token, loading: authLoading } = useAuth();
