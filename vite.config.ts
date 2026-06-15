@@ -2,18 +2,32 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+<<<<<<< HEAD
+=======
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+>>>>>>> a114dcbce2976d5fa2df1449a65be436e3b40d57
 
 export default defineConfig(({ mode }) => ({
   server: {
     host: "0.0.0.0",
     port: 8083,
+<<<<<<< HEAD
     proxy: {
+=======
+    proxy: mode === 'development' ? {
+>>>>>>> a114dcbce2976d5fa2df1449a65be436e3b40d57
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       }
+<<<<<<< HEAD
     }
+=======
+    } : undefined,
+>>>>>>> a114dcbce2976d5fa2df1449a65be436e3b40d57
   },
   plugins: [react()],
   resolve: {
@@ -26,6 +40,12 @@ export default defineConfig(({ mode }) => ({
     assetsDir: "assets",
     sourcemap: false,
     minify: 'terser',
+<<<<<<< HEAD
+=======
+    rollupOptions: {
+      input: path.resolve(__dirname, "index.html"),
+    },
+>>>>>>> a114dcbce2976d5fa2df1449a65be436e3b40d57
   },
   optimizeDeps: {
     include: [
@@ -54,4 +74,8 @@ export default defineConfig(({ mode }) => ({
       '@tanstack/react-query'
     ]
   }
+<<<<<<< HEAD
 }));
+=======
+}));
+>>>>>>> a114dcbce2976d5fa2df1449a65be436e3b40d57

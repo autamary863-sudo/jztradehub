@@ -2,11 +2,22 @@
   "name": "jztradehub",
   "version": "1.0.0",
   "type": "module",
+<<<<<<< HEAD
+=======
+  "description": "JZTradeHub - Secure Escrow Marketplace Platform",
+  "main": "server.js",
+>>>>>>> a114dcbce2976d5fa2df1449a65be436e3b40d57
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+<<<<<<< HEAD
     "server": "node server.js"
+=======
+    "server": "node server.js",
+    "server:dev": "nodemon server.js",
+    "render-postbuild": "npm run build"
+>>>>>>> a114dcbce2976d5fa2df1449a65be436e3b40d57
   },
   "dependencies": {
     "@capacitor/android": "^7.4.4",
@@ -97,5 +108,23 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^5.4.19"
+<<<<<<< HEAD
   }
+=======
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "ecommerce",
+    "marketplace",
+    "escrow",
+    "flutterwave",
+    "react",
+    "typescript"
+  ],
+  "author": "JZTradeHub",
+  "license": "MIT"
+>>>>>>> a114dcbce2976d5fa2df1449a65be436e3b40d57
 }

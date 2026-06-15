@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # render.yaml
 services:
   - type: web
@@ -19,3 +20,43 @@ services:
         sync: false
       - key: FRONTEND_URL
         value: https://jztradehub.netlify.app
+=======
+services:
+  # Backend API Service
+  - type: web
+    name: jztradehub-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: FLW_SECRET_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://jztradehub-frontend.onrender.com
+
+  # Frontend - Using web type with serve
+  - type: web
+    name: jztradehub-frontend
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s dist -l 10000
+    envVars:
+      - key: VITE_API_URL
+        value: https://jztradehub-api.onrender.com
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+>>>>>>> a114dcbce2976d5fa2df1449a65be436e3b40d57

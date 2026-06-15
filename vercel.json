@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 {
   "buildCommand": "npm run build || echo 'Build skipped'"
 }
+=======
+{
+  "buildCommand": "npm run build || echo 'Build skipped'"
+}
+>>>>>>> a114dcbce2976d5fa2df1449a65be436e3b40d57
 student expense and budget tracking survery
