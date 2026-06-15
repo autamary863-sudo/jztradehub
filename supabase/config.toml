@@ -1,0 +1,7 @@
+project_id = "efhfoloshivbylyuawfp"
+
+[functions.admin-update-order]
+verify_jwt = true
+
+[functions.ai-chat]
+verify_jwt = false
