@@ -10,10 +10,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// CORS configuration - Allow Netlify frontend
+const allowedOrigins = [
+  'http://localhost:8083',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://jztradehub.netlify.app',
+  'https://*.netlify.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: ['http://localhost:8083', 'http://localhost:5173', 'http://localhost:3000'],
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -29,16 +41,27 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY || 'FLWSECK_TEST-0a8aae8f596e6970eface67e79104b4e-X';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_Z43aYrco_KoiY6AaZVfWNpC3BhwruWp62';
 
+// Frontend URL for redirects
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://jztradehub.netlify.app';
+
 console.log('=================================');
-console.log('🚀 JZTRADEHUB SERVER');
+console.log('🚀 JZTRADEHUB SERVER STARTING');
 console.log(`📍 Port: ${PORT}`);
-console.log(`📍 Flutterwave: ${FLW_SECRET_KEY ? '✓' : '✗'}`);
-console.log(`📍 Email Service: ${RESEND_API_KEY ? '✓' : '✗'}`);
+console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+console.log(`📍 Frontend URL: ${FRONTEND_URL}`);
+console.log(`📍 Flutterwave: ${FLW_SECRET_KEY ? '✓ Configured' : '✗ Missing'}`);
+console.log(`📍 Email Service: ${RESEND_API_KEY ? '✓ Configured' : '✗ Missing'}`);
+console.log(`📍 Supabase: ${SUPABASE_URL ? '✓ Configured' : '✗ Missing'}`);
 console.log('=================================');
 
 // ============ HEALTH CHECK ============
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Server running', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    message: 'JZTradeHub API is running', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // ============ CREATE ORDER ============
@@ -50,7 +73,7 @@ app.post('/api/create-order', async (req, res) => {
     const {
       buyer_id, seller_id, product_id, quantity, product_price,
       delivery_address, delivery_fee, service_fee, phone_number,
-      delivery_type, estimated_days, delivery_state
+      delivery_type, estimated_days, delivery_state, payment_method
     } = req.body;
 
     // Validate required fields
@@ -87,8 +110,8 @@ app.post('/api/create-order', async (req, res) => {
     
     const subtotal = product_price * quantity;
     const deliveryFee = delivery_fee || 0;
-    const serviceFee = service_fee || 0;
-    const total = subtotal + deliveryFee + serviceFee;
+    const serviceFeeVal = service_fee || 0;
+    const total = subtotal + deliveryFee + serviceFeeVal;
 
     console.log(`💰 Order total: ₦${total}, Order ID: ${orderId}`);
 
@@ -107,10 +130,11 @@ app.post('/api/create-order', async (req, res) => {
         delivery_address: delivery_address || 'Address provided at checkout',
         phone_number: phone_number || null,
         delivery_fee: deliveryFee,
-        service_fee: serviceFee,
+        service_fee: serviceFeeVal,
         delivery_type: delivery_type || 'standard',
         estimated_days: estimated_days || null,
         delivery_state: delivery_state || null,
+        payment_method: payment_method || 'flutterwave',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
@@ -155,10 +179,9 @@ app.post('/api/initialize-payment', async (req, res) => {
       });
     }
 
-    // Cap amount for test mode
-    const finalAmount = Math.min(amount, 50000);
+    // Use actual amount (no capping in production)
+    const finalAmount = parseFloat(amount);
     const reference = `JZ-${orderId.slice(0, 8)}-${Date.now()}`;
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8083';
 
     console.log(`💰 Amount: ₦${finalAmount}, Ref: ${reference}`);
 
@@ -172,7 +195,7 @@ app.post('/api/initialize-payment', async (req, res) => {
       tx_ref: reference,
       amount: finalAmount,
       currency: 'NGN',
-      redirect_url: `${frontendUrl}/payment-success?reference=${reference}&orderId=${orderId}`,
+      redirect_url: `${FRONTEND_URL}/payment-success?reference=${reference}&orderId=${orderId}`,
       payment_options: 'card,banktransfer,ussd',
       customer: {
         email: email,
@@ -182,7 +205,7 @@ app.post('/api/initialize-payment', async (req, res) => {
       customizations: {
         title: 'JZTradeHub',
         description: `Order #${orderId.slice(0, 8)}`,
-        logo: 'https://jztradehub.com/logo.png'
+        logo: 'https://jztradehub.netlify.app/logo.png'
       },
       meta: {
         order_id: orderId
@@ -359,7 +382,7 @@ app.get('/api/verify-payment', async (req, res) => {
   }
 });
 
-// ============ SEND ORDER EMAIL - WORKING ENDPOINT ============
+// ============ SEND ORDER EMAIL ============
 app.post('/api/send-order-email', async (req, res) => {
   console.log('\n📧 SENDING ORDER EMAIL');
   console.log('Request body:', req.body);
@@ -434,7 +457,7 @@ app.post('/api/send-order-email', async (req, res) => {
               <p>Phone: ${phoneNumber || 'Not provided'}</p>
             </div>
             
-            <a href="${trackingUrl}" class="button">Track Your Order</a>
+            <a href="${trackingUrl || FRONTEND_URL}" class="button">Track Your Order</a>
           </div>
           <div class="footer">
             <p>JZTradeHub - Secure Escrow Marketplace</p>
@@ -519,6 +542,38 @@ app.get('/api/wallet/balance', async (req, res) => {
   }
 });
 
+// ============ WALLET TRANSACTIONS ============
+app.get('/api/wallet/transactions', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    if (error || !user) {
+      return res.status(401).json({ success: false, message: 'Invalid token' });
+    }
+
+    const { data: transactions } = await supabase
+      .from('wallet_transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    res.json({ 
+      success: true, 
+      transactions: transactions || [] 
+    });
+  } catch (error) {
+    console.error('Transactions error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ============ WALLET PAY ORDER ============
 app.post('/api/wallet/pay-order', async (req, res) => {
   console.log('\n💰 WALLET PAY ORDER');
@@ -588,8 +643,9 @@ app.listen(PORT, () => {
   console.log('   POST /api/create-order');
   console.log('   POST /api/initialize-payment');
   console.log('   GET  /api/verify-payment');
-  console.log('   POST /api/send-order-email ✓ Email Working');
+  console.log('   POST /api/send-order-email');
   console.log('   GET  /api/wallet/balance');
+  console.log('   GET  /api/wallet/transactions');
   console.log('   POST /api/wallet/pay-order');
-  console.log('\n🚀 Ready!\n');
+  console.log('\n🚀 Ready for deployment!\n');
 });
