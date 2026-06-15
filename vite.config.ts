@@ -4,16 +4,17 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 export default defineConfig(({ mode }) => ({
+  root: ".", // Make sure root is current directory
   server: {
     host: "0.0.0.0",
     port: 8083,
-    proxy: {
+    proxy: mode === 'development' ? {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       }
-    }
+    } : undefined,
   },
   plugins: [react()],
   resolve: {
@@ -26,6 +27,11 @@ export default defineConfig(({ mode }) => ({
     assetsDir: "assets",
     sourcemap: false,
     minify: 'terser',
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html"),
+      },
+    },
   },
   optimizeDeps: {
     include: [
