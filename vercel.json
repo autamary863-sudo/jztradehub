@@ -1,0 +1,4 @@
+{
+  "buildCommand": "npm run build || echo 'Build skipped'"
+}
+student expense and budget tracking survery
