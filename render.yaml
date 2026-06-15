@@ -1,4 +1,3 @@
-# render.yaml
 services:
   # Backend API Service
   - type: web
@@ -23,12 +22,12 @@ services:
       - key: FRONTEND_URL
         value: https://jztradehub-frontend.onrender.com
 
-  # Frontend - Use 'web' type with static serving
+  # Frontend - Using web type with serve
   - type: web
     name: jztradehub-frontend
     runtime: node
     plan: free
-    buildCommand: npm run build
+    buildCommand: npm install && npm run build
     startCommand: npx serve -s dist -l 10000
     envVars:
       - key: VITE_API_URL
