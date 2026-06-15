@@ -99,3 +99,10 @@
     "vite": "^5.4.19"
   }
 }
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}
