@@ -1,5 +1,6 @@
 # render.yaml
 services:
+  # Backend API Service
   - type: web
     name: jztradehub-api
     runtime: node
@@ -9,6 +10,8 @@ services:
     envVars:
       - key: PORT
         value: 10000
+      - key: NODE_ENV
+        value: production
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
@@ -18,4 +21,29 @@ services:
       - key: RESEND_API_KEY
         sync: false
       - key: FRONTEND_URL
-        value: https://jztradehub.netlify.app
+        value: https://jztradehub-frontend.onrender.com
+
+  # Frontend Static Site Service
+  - type: static
+    name: jztradehub-frontend
+    runtime: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://jztradehub-api.onrender.com
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
