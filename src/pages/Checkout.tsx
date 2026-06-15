@@ -341,10 +341,10 @@ const Checkout = () => {
       await reduceProductStock(product.id, quantity);
       
       // Initialize Flutterwave payment
-      const response = await fetch('https://jztradehub-api.onrender.com/api/initialize-payment'
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+     const response = await fetch('https://jztradehub-api.onrender.com/api/initialize-payment', {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
           amount: total,
           email: email || currentUser.email,
           name: fullName,
