@@ -7,13 +7,13 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "0.0.0.0",
     port: 8083,
-    proxy: mode === 'development' ? {
+    proxy: {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       }
-    } : undefined,
+    }
   },
   plugins: [react()],
   resolve: {
@@ -26,36 +26,19 @@ export default defineConfig(({ mode }) => ({
     assetsDir: "assets",
     sourcemap: false,
     minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
   },
   optimizeDeps: {
     include: [
       'react',
       'react-dom',
       'react-router-dom',
-      '@radix-ui/react-accordion',
-      '@radix-ui/react-alert-dialog',
-      '@radix-ui/react-avatar',
-      '@radix-ui/react-checkbox',
+      '@radix-ui/react-switch',
+      '@radix-ui/react-progress',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-select',
+      '@radix-ui/react-radio-group',
       '@radix-ui/react-dialog',
       '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-label',
-      '@radix-ui/react-popover',
-      '@radix-ui/react-progress',
-      '@radix-ui/react-radio-group',
-      '@radix-ui/react-scroll-area',
-      '@radix-ui/react-select',
-      '@radix-ui/react-separator',
-      '@radix-ui/react-slider',
-      '@radix-ui/react-slot',
-      '@radix-ui/react-switch',
-      '@radix-ui/react-tabs',
-      '@radix-ui/react-toast',
       '@radix-ui/react-tooltip',
       '@supabase/supabase-js',
       'lucide-react',
